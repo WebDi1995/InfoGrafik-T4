@@ -27,44 +27,40 @@
 <main class="main">
 
     <section id="panel-1" class="panel active" role="tabpanel">
-        <div class="panel-header">
-            <div class="panel-label">Aufgabe 01</div>
-            <h1 class="panel-title">Einleitung</h1>
-            <p class="panel-subtitle">Worum geht es – und warum du jetzt hier bist.</p>
-        </div>
+    <div class="panel-header">
+        <div class="panel-label">Aufgabe 01</div>
+        <h1 class="panel-title">Einleitung</h1>
+        <p class="panel-subtitle">Grafik & Dokumentation</p>
+    </div>
 
-        <div class="stats-row">
-            <div class="stat-card"><div class="stat-value">6</div><div class="stat-label">Aufgabe</div></div>
-            <div class="stat-card"><div class="stat-value">1</div><div class="stat-label">Seite</div></div>
-            <div class="stat-card"><div class="stat-value">∞</div><div class="stat-label">Ideen</div></div>
-        </div>
-
-        <div class="media-slot" onclick="toggleVideo(this)" data-video="">
-            <div class="media-placeholder">
-                <div class="play-icon">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <polygon points="3,1 13,7 3,13" fill="currentColor"/>
-                    </svg>
-                </div>
-                <span class="media-caption">Video einfügen</span>
+    <a href="URL_TO_YOUR_GRAFIK.pdf" target="_blank" class="media-slot" style="text-decoration: none;">
+        <div class="media-placeholder">
+            <div class="play-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
             </div>
+            <span class="media-caption">Grafik öffnen (PDF)</span>
         </div>
+    </a>
 
-        <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
-            <span>Mehr lesen</span>
-            <span class="toggle-icon">+</span>
-        </button>
-        <div class="expand-body">
-            <p>Hier steht dein erster Textblock. Beschreibe das Thema, den Kontext oder die Frage, die dein Projekt stellt. <strong>Halte es kurz und prägnant.</strong></p>
-            <p>Du kannst diesen Text direkt in der <code>index.html</code> anpassen – suche nach <code>panel-1</code> und ersetze diesen Platzhalter.</p>
-        </div>
-
-        <div class="tags">
-            <span class="tag">Kontext</span>
-            <span class="tag">Überblick</span>
-            <span class="tag">Hybrid</span>
-        </div>
-    </section>
+    <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
+        <span>Dokumentation & Details</span>
+        <span class="toggle-icon">+</span>
+    </button>
+    <div class="expand-body">
+        <p>Hier finden Sie die vollständige Dokumentation zur oben gezeigten Grafik.</p>
+        
+        <a class="link-btn" href="URL_TO_YOUR_DOCUMENTATION.pdf" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Dokumentation PDF ansehen
+        </a>
+    </div>
+</section>
 
     <section id="panel-2" class="panel" role="tabpanel">
         <div class="panel-header">
