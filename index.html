@@ -1,738 +1,258 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>6-Pack Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0a0a0a;
-    --surface: #141414;
-    --surface2: #1e1e1e;
-    --border: rgba(255,255,255,0.08);
-    --border-hover: rgba(255,255,255,0.18);
-    --accent: #e8c547;
-    --accent-dim: rgba(232,197,71,0.12);
-    --text: #f0ede6;
-    --muted: rgba(240,237,230,0.45);
-    --card-radius: 12px;
-    --tab-h: 56px;
-    --max-w: 600px;
-    --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  /* ── STICKY NAV ── */
-  .sticky-bar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    width: 100%;
-    max-width: var(--max-w);
-    background: rgba(10,10,10,0.92);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 12px;
-  }
-
-  .tab-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    height: var(--tab-h);
-    gap: 4px;
-    align-items: center;
-  }
-
-  .tab-btn {
-    height: 40px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: transparent;
-    color: var(--muted);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    transition: all var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .tab-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity var(--transition);
-  }
-
-  .tab-btn span { position: relative; z-index: 1; }
-
-  .tab-btn:hover {
-    border-color: var(--border-hover);
-    color: var(--text);
-  }
-
-  .tab-btn.active {
-    border-color: var(--accent);
-    color: var(--bg);
-    background: var(--accent);
-  }
-
-  .tab-btn.active::before { opacity: 1; }
-
-  /* ── MAIN LAYOUT ── */
-  .main {
-    width: 100%;
-    max-width: var(--max-w);
-    padding: 20px 12px 40px;
-    flex: 1;
-  }
-
-  /* ── PANELS ── */
-  .panel {
-    display: none;
-    animation: fadeSlide 0.3s ease forwards;
-  }
-
-  .panel.active { display: block; }
-
-  @keyframes fadeSlide {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── PANEL HEADER ── */
-  .panel-header {
-    margin-bottom: 20px;
-  }
-
-  .panel-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .panel-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--accent);
-    opacity: 0.3;
-  }
-
-  .panel-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(40px, 12vw, 56px);
-    line-height: 0.9;
-    letter-spacing: 0.02em;
-    color: var(--text);
-  }
-
-  .panel-subtitle {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-size: 15px;
-    color: var(--muted);
-    margin-top: 8px;
-    line-height: 1.5;
-  }
-
-  /* ── MEDIA SLOT ── */
-  .media-slot {
-    width: 100%;
-    aspect-ratio: 16/9;
-    border-radius: var(--card-radius);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 16px;
-    cursor: pointer;
-    transition: border-color var(--transition);
-  }
-
-  .media-slot:hover { border-color: var(--border-hover); }
-
-  .media-slot iframe,
-  .media-slot video {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-  }
-
-  .media-placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: var(--muted);
-  }
-
-  .play-icon {
-    width: 48px;
-    height: 48px;
-    border: 2px solid var(--border-hover);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition);
-  }
-
-  .media-slot:hover .play-icon {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-  }
-
-  .play-icon svg { margin-left: 3px; }
-
-  .media-caption {
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  /* ── EXPANDABLE CONTENT ── */
-  .expand-toggle {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--card-radius);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: all var(--transition);
-    margin-bottom: 2px;
-  }
-
-  .expand-toggle:hover {
-    border-color: var(--border-hover);
-    background: var(--surface2);
-  }
-
-  .toggle-icon {
-    width: 20px;
-    height: 20px;
-    border: 1px solid var(--border-hover);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: transform var(--transition), background var(--transition);
-    font-size: 14px;
-    line-height: 1;
-    color: var(--accent);
-  }
-
-  .expand-toggle.open .toggle-icon {
-    transform: rotate(45deg);
-    background: var(--accent-dim);
-  }
-
-  .expand-body {
-    display: none;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 var(--card-radius) var(--card-radius);
-    padding: 0 16px;
-    margin-bottom: 8px;
-    overflow: hidden;
-  }
-
-  .expand-body.open {
-    display: block;
-    animation: expandDown 0.25s ease forwards;
-  }
-
-  @keyframes expandDown {
-    from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
-    to   { opacity: 1; max-height: 600px; padding-top: 14px; padding-bottom: 16px; }
-  }
-
-  .expand-body p {
-    font-size: 13px;
-    line-height: 1.7;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-
-  .expand-body p:last-child { margin-bottom: 0; }
-
-  .expand-body strong { color: var(--text); font-weight: 500; }
-
-  /* ── STATS ROW ── */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--card-radius);
-    padding: 12px;
-    text-align: center;
-  }
-
-  .stat-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    color: var(--accent);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .stat-label {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  /* ── TAG CLOUD ── */
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 16px;
-  }
-
-  .tag {
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    transition: all var(--transition);
-    cursor: default;
-  }
-
-  .tag:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-dim);
-  }
-
-  /* ── BOTTOM PROGRESS BAR ── */
-  .progress-strip {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--border);
-    z-index: 100;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    transition: width 0.3s ease;
-  }
-
-  /* ── QR HINT (Panel 6 only) ── */
-  .qr-box {
-    border: 1px dashed var(--border-hover);
-    border-radius: var(--card-radius);
-    padding: 20px;
-    text-align: center;
-    margin-bottom: 16px;
-  }
-
-  .qr-box .qr-inner {
-    width: 80px;
-    height: 80px;
-    border: 2px solid var(--border-hover);
-    border-radius: 8px;
-    margin: 0 auto 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .qr-hint {
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  /* ── LINK BUTTON ── */
-  .link-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 14px;
-    border: 1px solid var(--accent);
-    border-radius: var(--card-radius);
-    background: var(--accent-dim);
-    color: var(--accent);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all var(--transition);
-    margin-bottom: 8px;
-  }
-
-  .link-btn:hover {
-    background: var(--accent);
-    color: var(--bg);
-  }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 2px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6-Pack Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="sticky-bar">
-  <nav class="tab-grid" role="tablist" aria-label="Aufgabe 1 bis 6">
-    <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="panel-1" onclick="switchTab(1)"><span>1</span></button>
-    <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-2" onclick="switchTab(2)"><span>2</span></button>
-    <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-3" onclick="switchTab(3)"><span>3</span></button>
-    <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-4" onclick="switchTab(4)"><span>4</span></button>
-    <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-5" onclick="switchTab(5)"><span>5</span></button>
-    <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-6" onclick="switchTab(6)"><span>6</span></button>
-  </nav>
+    <nav class="tab-grid" role="tablist" aria-label="Aufgabe 1 bis 6">
+        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-1" onclick="switchTab(1)"><span>1</span></button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-2" onclick="switchTab(2)"><span>2</span></button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-3" onclick="switchTab(3)"><span>3</span></button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-4" onclick="switchTab(4)"><span>4</span></button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-5" onclick="switchTab(5)"><span>5</span></button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-6" onclick="switchTab(6)"><span>6</span></button>
+    </nav>
 </div>
 
 <main class="main">
 
-  <!-- ═══════════ PANEL 1 ═══════════ -->
-  <section id="panel-1" class="panel active" role="tabpanel">
-    <div class="panel-header">
-      <div class="panel-label">Aufgabe 01</div>
-      <h1 class="panel-title">Einleitung</h1>
-      <p class="panel-subtitle">Worum geht es – und warum du jetzt hier bist.</p>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-value">6</div><div class="stat-label">Aufgabe</div></div>
-      <div class="stat-card"><div class="stat-value">1</div><div class="stat-label">Seite</div></div>
-      <div class="stat-card"><div class="stat-value">∞</div><div class="stat-label">Ideen</div></div>
-    </div>
-
-    <div class="media-slot" onclick="toggleVideo(this)" data-video="">
-      <div class="media-placeholder">
-        <div class="play-icon">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <polygon points="3,1 13,7 3,13" fill="currentColor"/>
-          </svg>
+    <section id="panel-1" class="panel active" role="tabpanel">
+        <div class="panel-header">
+            <div class="panel-label">Aufgabe 01</div>
+            <h1 class="panel-title">Einleitung</h1>
+            <p class="panel-subtitle">Worum geht es – und warum du jetzt hier bist.</p>
         </div>
-        <span class="media-caption">Video einfügen</span>
-      </div>
-    </div>
 
-    <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
-      <span>Mehr lesen</span>
-      <span class="toggle-icon">+</span>
-    </button>
-    <div class="expand-body">
-      <p>Hier steht dein erster Textblock. Beschreibe das Thema, den Kontext oder die Frage, die dein Projekt stellt. <strong>Halte es kurz und prägnant.</strong></p>
-      <p>Du kannst diesen Text direkt in der <code>index.html</code> anpassen – suche nach <code>panel-1</code> und ersetze diesen Platzhalter.</p>
-    </div>
-
-    <div class="tags">
-      <span class="tag">Kontext</span>
-      <span class="tag">Überblick</span>
-      <span class="tag">Hybrid</span>
-    </div>
-  </section>
-
-  <!-- ═══════════ PANEL 2 ═══════════ -->
-  <section id="panel-2" class="panel" role="tabpanel">
-    <div class="panel-header">
-      <div class="panel-label">Aufgabe 02</div>
-      <h1 class="panel-title">Methode</h1>
-      <p class="panel-subtitle">Wie du vorgegangen bist – Schritt für Schritt.</p>
-    </div>
-
-    <div class="media-slot" onclick="toggleVideo(this)" data-video="">
-      <div class="media-placeholder">
-        <div class="play-icon">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <polygon points="3,1 13,7 3,13" fill="currentColor"/>
-          </svg>
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">6</div><div class="stat-label">Aufgabe</div></div>
+            <div class="stat-card"><div class="stat-value">1</div><div class="stat-label">Seite</div></div>
+            <div class="stat-card"><div class="stat-value">∞</div><div class="stat-label">Ideen</div></div>
         </div>
-        <span class="media-caption">Video / Grafik</span>
-      </div>
-    </div>
 
-    <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
-      <span>Prozess aufklappen</span>
-      <span class="toggle-icon">+</span>
-    </button>
-    <div class="expand-body">
-      <p>Beschreibe hier deine Methodik. Was waren die Arbeitsschritte? Welche Tools hast du genutzt?</p>
-      <p>Tipp: Nutze <strong>kurze Absätze</strong> und fette Schlüsselwörter, um die Lesbarkeit auf dem Handy zu verbessern.</p>
-    </div>
-
-    <div class="tags">
-      <span class="tag">Recherche</span>
-      <span class="tag">Prozess</span>
-      <span class="tag">Tools</span>
-    </div>
-  </section>
-
-  <!-- ═══════════ PANEL 3 ═══════════ -->
-  <section id="panel-3" class="panel" role="tabpanel">
-    <div class="panel-header">
-      <div class="panel-label">Aufgabe 03</div>
-      <h1 class="panel-title">Analyse</h1>
-      <p class="panel-subtitle">Was die Daten zeigen – und was dahintersteckt.</p>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-value">42%</div><div class="stat-label">Anteil A</div></div>
-      <div class="stat-card"><div class="stat-value">3×</div><div class="stat-label">Wachstum</div></div>
-      <div class="stat-card"><div class="stat-value">12</div><div class="stat-label">Quellen</div></div>
-    </div>
-
-    <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
-      <span>Analyse lesen</span>
-      <span class="toggle-icon">+</span>
-    </button>
-    <div class="expand-body">
-      <p>Trage hier deine Analyseergebnisse ein. Was hast du herausgefunden? Welche Muster sind aufgetaucht?</p>
-      <p>Die <strong>Statistik-Karten</strong> oben lassen sich ebenfalls anpassen – ändere Wert und Label direkt im HTML.</p>
-    </div>
-
-    <div class="tags">
-      <span class="tag">Daten</span>
-      <span class="tag">Muster</span>
-      <span class="tag">Ergebnis</span>
-    </div>
-  </section>
-
-  <!-- ═══════════ PANEL 4 ═══════════ -->
-  <section id="panel-4" class="panel" role="tabpanel">
-    <div class="panel-header">
-      <div class="panel-label">Aufgabe 04</div>
-      <h1 class="panel-title">Ergebnisse</h1>
-      <p class="panel-subtitle">Die wichtigsten Erkenntnisse auf einen Blick.</p>
-    </div>
-
-    <div class="media-slot" onclick="toggleVideo(this)" data-video="">
-      <div class="media-placeholder">
-        <div class="play-icon">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <polygon points="3,1 13,7 3,13" fill="currentColor"/>
-          </svg>
+        <div class="media-slot" onclick="toggleVideo(this)" data-video="">
+            <div class="media-placeholder">
+                <div class="play-icon">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <polygon points="3,1 13,7 3,13" fill="currentColor"/>
+                    </svg>
+                </div>
+                <span class="media-caption">Video einfügen</span>
+            </div>
         </div>
-        <span class="media-caption">Ergebnis-Video</span>
-      </div>
-    </div>
 
-    <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
-      <span>Details zeigen</span>
-      <span class="toggle-icon">+</span>
-    </button>
-    <div class="expand-body">
-      <p>Fasse hier deine Kernergebnisse zusammen. Was ist das <strong>wichtigste Take-away</strong> für die Betrachter?</p>
-      <p>Verlinke weiterführende Quellen oder ergänze ein Bild als zusätzliches Beweismittel.</p>
-    </div>
-
-    <div class="tags">
-      <span class="tag">Kernthesen</span>
-      <span class="tag">Belege</span>
-      <span class="tag">Fazit</span>
-    </div>
-  </section>
-
-  <!-- ═══════════ PANEL 5 ═══════════ -->
-  <section id="panel-5" class="panel" role="tabpanel">
-    <div class="panel-header">
-      <div class="panel-label">Aufgabe 05</div>
-      <h1 class="panel-title">Diskussion</h1>
-      <p class="panel-subtitle">Offene Fragen, Grenzen & Ausblick.</p>
-    </div>
-
-    <div class="media-slot" onclick="toggleVideo(this)" data-video="">
-      <div class="media-placeholder">
-        <div class="play-icon">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <polygon points="3,1 13,7 3,13" fill="currentColor"/>
-          </svg>
+        <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
+            <span>Mehr lesen</span>
+            <span class="toggle-icon">+</span>
+        </button>
+        <div class="expand-body">
+            <p>Hier steht dein erster Textblock. Beschreibe das Thema, den Kontext oder die Frage, die dein Projekt stellt. <strong>Halte es kurz und prägnant.</strong></p>
+            <p>Du kannst diesen Text direkt in der <code>index.html</code> anpassen – suche nach <code>panel-1</code> und ersetze diesen Platzhalter.</p>
         </div>
-        <span class="media-caption">Interview / Talk</span>
-      </div>
-    </div>
 
-    <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
-      <span>Diskussion lesen</span>
-      <span class="toggle-icon">+</span>
-    </button>
-    <div class="expand-body">
-      <p>Was könnte man noch besser machen? Welche Fragen bleiben offen? Gibt es konkurrierende Interpretationen?</p>
-      <p>Dieser Abschnitt zeigt wissenschaftliche Reife – <strong>Selbstkritik ist ein Qualitätsmerkmal</strong>.</p>
-    </div>
+        <div class="tags">
+            <span class="tag">Kontext</span>
+            <span class="tag">Überblick</span>
+            <span class="tag">Hybrid</span>
+        </div>
+    </section>
 
-    <div class="tags">
-      <span class="tag">Grenzen</span>
-      <span class="tag">Ausblick</span>
-      <span class="tag">Fragen</span>
-    </div>
-  </section>
+    <section id="panel-2" class="panel" role="tabpanel">
+        <div class="panel-header">
+            <div class="panel-label">Aufgabe 02</div>
+            <h1 class="panel-title">Methode</h1>
+            <p class="panel-subtitle">Wie du vorgegangen bist – Schritt für Schritt.</p>
+        </div>
 
-  <!-- ═══════════ PANEL 6 ═══════════ -->
-  <section id="panel-6" class="panel" role="tabpanel">
-    <div class="panel-header">
-      <div class="panel-label">Aufgabe 06</div>
-      <h1 class="panel-title">Quellen &amp; Kontakt</h1>
-      <p class="panel-subtitle">Weiterdenken, nachlesen, vernetzen.</p>
-    </div>
+        <div class="media-slot" onclick="toggleVideo(this)" data-video="">
+            <div class="media-placeholder">
+                <div class="play-icon">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <polygon points="3,1 13,7 3,13" fill="currentColor"/>
+                    </svg>
+                </div>
+                <span class="media-caption">Video / Grafik</span>
+            </div>
+        </div>
 
-    <div class="qr-box">
-      <div class="qr-inner">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" opacity="0.4">
-          <rect x="2" y="2" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
-          <rect x="18" y="2" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
-          <rect x="2" y="18" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
-          <rect x="5" y="5" width="6" height="6" fill="currentColor"/>
-          <rect x="21" y="5" width="6" height="6" fill="currentColor"/>
-          <rect x="5" y="21" width="6" height="6" fill="currentColor"/>
-          <rect x="18" y="18" width="4" height="4" fill="currentColor"/>
-          <rect x="24" y="18" width="6" height="6" fill="currentColor"/>
-          <rect x="18" y="26" width="6" height="6" fill="currentColor"/>
-        </svg>
-        <span style="font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);">QR</span>
-      </div>
-      <p class="qr-hint">QR-Code nach dem Deployment hier einfügen</p>
-    </div>
+        <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
+            <span>Prozess aufklappen</span>
+            <span class="toggle-icon">+</span>
+        </button>
+        <div class="expand-body">
+            <p>Beschreibe hier deine Methodik. Was waren die Arbeitsschritte? Welche Tools hast du genutzt?</p>
+            <p>Tipp: Nutze <strong>kurze Absätze</strong> und fette Schlüsselwörter, um die Lesbarkeit auf dem Handy zu verbessern.</p>
+        </div>
 
-    <a class="link-btn" href="#" target="_blank" rel="noopener">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M2 12L12 2M12 2H6M12 2V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Zur vollständigen Literaturliste
-    </a>
+        <div class="tags">
+            <span class="tag">Recherche</span>
+            <span class="tag">Prozess</span>
+            <span class="tag">Tools</span>
+        </div>
+    </section>
 
-    <a class="link-btn" href="mailto:deine@email.de">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <rect x="1" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/>
-        <path d="M1 4l6 4.5L13 4" stroke="currentColor" stroke-width="1.2"/>
-      </svg>
-      Kontakt aufnehmen
-    </a>
+    <section id="panel-3" class="panel" role="tabpanel">
+        <div class="panel-header">
+            <div class="panel-label">Aufgabe 03</div>
+            <h1 class="panel-title">Analyse</h1>
+            <p class="panel-subtitle">Was die Daten zeigen – und was dahintersteckt.</p>
+        </div>
 
-    <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
-      <span>Impressum & Datenschutz</span>
-      <span class="toggle-icon">+</span>
-    </button>
-    <div class="expand-body">
-      <p>Angaben gemäß § 5 TMG. <strong>Name:</strong> Dein Name. <strong>Adresse:</strong> Deine Adresse.</p>
-      <p>Diese Seite verwendet keine Cookies und keine externen Tracking-Dienste.</p>
-    </div>
-  </section>
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">42%</div><div class="stat-label">Anteil A</div></div>
+            <div class="stat-card"><div class="stat-value">3×</div><div class="stat-label">Wachstum</div></div>
+            <div class="stat-card"><div class="stat-value">12</div><div class="stat-label">Quellen</div></div>
+        </div>
+
+        <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
+            <span>Analyse lesen</span>
+            <span class="toggle-icon">+</span>
+        </button>
+        <div class="expand-body">
+            <p>Trage hier deine Analyseergebnisse ein. Was hast du herausgefunden? Welche Muster sind aufgetaucht?</p>
+            <p>Die <strong>Statistik-Karten</strong> oben lassen sich ebenfalls anpassen – ändere Wert und Label direkt im HTML.</p>
+        </div>
+
+        <div class="tags">
+            <span class="tag">Daten</span>
+            <span class="tag">Muster</span>
+            <span class="tag">Ergebnis</span>
+        </div>
+    </section>
+
+    <section id="panel-4" class="panel" role="tabpanel">
+        <div class="panel-header">
+            <div class="panel-label">Aufgabe 04</div>
+            <h1 class="panel-title">Ergebnisse</h1>
+            <p class="panel-subtitle">Die wichtigsten Erkenntnisse auf einen Blick.</p>
+        </div>
+
+        <div class="media-slot" onclick="toggleVideo(this)" data-video="">
+            <div class="media-placeholder">
+                <div class="play-icon">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <polygon points="3,1 13,7 3,13" fill="currentColor"/>
+                    </svg>
+                </div>
+                <span class="media-caption">Ergebnis-Video</span>
+            </div>
+        </div>
+
+        <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
+            <span>Details zeigen</span>
+            <span class="toggle-icon">+</span>
+        </button>
+        <div class="expand-body">
+            <p>Fasse hier deine Kernergebnisse zusammen. Was ist das <strong>wichtigste Take-away</strong> für die Betrachter?</p>
+            <p>Verlinke weiterführende Quellen oder ergänze ein Bild als zusätzliches Beweismittel.</p>
+        </div>
+
+        <div class="tags">
+            <span class="tag">Kernthesen</span>
+            <span class="tag">Belege</span>
+            <span class="tag">Fazit</span>
+        </div>
+    </section>
+
+    <section id="panel-5" class="panel" role="tabpanel">
+        <div class="panel-header">
+            <div class="panel-label">Aufgabe 05</div>
+            <h1 class="panel-title">Diskussion</h1>
+            <p class="panel-subtitle">Offene Fragen, Grenzen & Ausblick.</p>
+        </div>
+
+        <div class="media-slot" onclick="toggleVideo(this)" data-video="">
+            <div class="media-placeholder">
+                <div class="play-icon">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <polygon points="3,1 13,7 3,13" fill="currentColor"/>
+                    </svg>
+                </div>
+                <span class="media-caption">Interview / Talk</span>
+            </div>
+        </div>
+
+        <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
+            <span>Diskussion lesen</span>
+            <span class="toggle-icon">+</span>
+        </button>
+        <div class="expand-body">
+            <p>Was könnte man noch besser machen? Welche Fragen bleiben offen? Gibt es konkurrierende Interpretationen?</p>
+            <p>Dieser Abschnitt zeigt wissenschaftliche Reife – <strong>Selbstkritik ist ein Qualitätsmerkmal</strong>.</p>
+        </div>
+
+        <div class="tags">
+            <span class="tag">Grenzen</span>
+            <span class="tag">Ausblick</span>
+            <span class="tag">Fragen</span>
+        </div>
+    </section>
+
+    <section id="panel-6" class="panel" role="tabpanel">
+        <div class="panel-header">
+            <div class="panel-label">Aufgabe 06</div>
+            <h1 class="panel-title">Quellen & Kontakt</h1>
+            <p class="panel-subtitle">Weiterdenken, nachlesen, vernetzen.</p>
+        </div>
+
+        <div class="qr-box">
+            <div class="qr-inner">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" opacity="0.4">
+                    <rect x="2" y="2" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <rect x="18" y="2" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <rect x="2" y="18" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <rect x="5" y="5" width="6" height="6" fill="currentColor"/>
+                    <rect x="21" y="5" width="6" height="6" fill="currentColor"/>
+                    <rect x="5" y="21" width="6" height="6" fill="currentColor"/>
+                    <rect x="18" y="18" width="4" height="4" fill="currentColor"/>
+                    <rect x="24" y="18" width="6" height="6" fill="currentColor"/>
+                    <rect x="18" y="26" width="6" height="6" fill="currentColor"/>
+                </svg>
+                <span style="font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);">QR</span>
+            </div>
+            <p class="qr-hint">QR-Code nach dem Deployment hier einfügen</p>
+        </div>
+
+        <a class="link-btn" href="#" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 12L12 2M12 2H6M12 2V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Zur vollständigen Literaturliste
+        </a>
+
+        <a class="link-btn" href="mailto:deine@email.de">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <rect x="1" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/>
+                <path d="M1 4l6 4.5L13 4" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+            Kontakt aufnehmen
+        </a>
+
+        <button class="expand-toggle" onclick="toggleExpand(this)" aria-expanded="false">
+            <span>Impressum & Datenschutz</span>
+            <span class="toggle-icon">+</span>
+        </button>
+        <div class="expand-body">
+            <p>Angaben gemäß § 5 TMG. <strong>Name:</strong> Dein Name. <strong>Adresse:</strong> Deine Adresse.</p>
+            <p>Diese Seite verwendet keine Cookies und keine externen Tracking-Dienste.</p>
+        </div>
+    </section>
 
 </main>
 
-<!-- Progress strip -->
 <div class="progress-strip" aria-hidden="true">
-  <div class="progress-fill" id="progress" style="width: 16.66%"></div>
+    <div class="progress-fill" id="progress" style="width: 16.66%"></div>
 </div>
 
-<script>
-  const TOTAL = 6;
-  let current = 1;
-
-  function switchTab(n) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach((b,i) => {
-      b.classList.toggle('active', i === n - 1);
-      b.setAttribute('aria-selected', i === n - 1 ? 'true' : 'false');
-    });
-    const target = document.getElementById('panel-' + n);
-    if (target) target.classList.add('active');
-    document.getElementById('progress').style.width = (n / TOTAL * 100) + '%';
-    current = n;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function toggleExpand(btn) {
-    const body = btn.nextElementSibling;
-    const isOpen = body.classList.contains('open');
-    body.classList.toggle('open', !isOpen);
-    btn.classList.toggle('open', !isOpen);
-    btn.setAttribute('aria-expanded', (!isOpen).toString());
-  }
-
-  function toggleVideo(slot) {
-    const videoSrc = slot.dataset.video;
-    if (!videoSrc) return;
-    const existing = slot.querySelector('iframe');
-    if (existing) { slot.removeChild(existing); return; }
-    const iframe = document.createElement('iframe');
-    iframe.src = videoSrc + '?autoplay=1';
-    iframe.allow = 'autoplay; fullscreen';
-    iframe.allowFullscreen = true;
-    slot.innerHTML = '';
-    slot.appendChild(iframe);
-  }
-
-  // Keyboard navigation
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' && current < TOTAL) switchTab(current + 1);
-    if (e.key === 'ArrowLeft'  && current > 1)     switchTab(current - 1);
-  });
-</script>
+<script src="script.js"></script>
 </body>
 </html>
